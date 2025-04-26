@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <title>Medication Checklist Generator</title>
+    <script>
+        function addMedication() {
+            const container = document.getElementById('medications');
+            const entry = document.createElement('div');
+            entry.className = "medication-entry";
+            entry.innerHTML = `
+                <hr>
+                <label>Medication Name: <input type="text" name="medication_name" required></label><br>
+                <label>Doses per Day: <input type="number" step="0.1" name="dosage_frequency" required></label><br>
+                <label>Days Between Doses: <input type="number" name="days_between_doses" value="1" required></label><br>
+                <label>Trip Duration (Days): <input type="number" name="duration_days" required></label><br>
+                <label>Current Pill Count: <input type="number" name="current_count" required></label><br>
+                <label>Last Refill Date (YYYY-MM-DD): <input type="text" name="last_refill_date" required></label><br>
+                <label>Days Supply From Last Refill: <input type="number" name="days_supply_from_refill" required></label><br><br>
+            `;
+            container.appendChild(entry);
+        }
+    </script>
+</head>
+<body>
+    <h1>Enter Medication Info</h1>
+    <form method="POST">
+        <div id="medications">
+            <!-- First medication block -->
+            <div class="medication-entry">
+                <label>Medication Name: <input type="text" name="medication_name" required></label><br>
+                <label>Doses per Day: <input type="number" step="0.1" name="dosage_frequency" required></label><br>
+                <label>Days Between Doses: <input type="number" name="days_between_doses" value="1" required></label><br>
+                <label>Trip Duration (Days): <input type="number" name="duration_days" required></label><br>
+                <label>Current Pill Count: <input type="number" name="current_count" required></label><br>
+                <label>Last Refill Date (YYYY-MM-DD): <input type="text" name="last_refill_date" required></label><br>
+                <label>Days Supply From Last Refill: <input type="number" name="days_supply_from_refill" required></label><br><br>
+            </div>
+        </div>
+        <button type="button" onclick="addMedication()">Add Another Medication</button><br><br>
+
+        <label>Buffer Percentage: <input type="number" step="0.1" name="buffer_percentage" value="5.0"></label><br><br>
+        <button type="submit">Generate PDF</button>
+    </form>
+</body>
+</html>
