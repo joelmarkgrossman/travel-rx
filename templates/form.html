@@ -1,45 +1,225 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-    <title>Medication Checklist Generator</title>
-    <script>
-        function addMedication() {
-            const container = document.getElementById('medications');
-            const entry = document.createElement('div');
-            entry.className = "medication-entry";
-            entry.innerHTML = `
-                <hr>
-                <label>Medication Name: <input type="text" name="medication_name" required></label><br>
-                <label>Doses per Day: <input type="number" step="0.1" name="dosage_frequency" required></label><br>
-                <label>Days Between Doses: <input type="number" name="days_between_doses" value="1" required></label><br>
-                <label>Trip Duration (Days): <input type="number" name="duration_days" required></label><br>
-                <label>Current Pill Count: <input type="number" name="current_count" required></label><br>
-                <label>Last Refill Date (YYYY-MM-DD): <input type="text" name="last_refill_date" required></label><br>
-                <label>Days Supply From Last Refill: <input type="number" name="days_supply_from_refill" required></label><br><br>
-            `;
-            container.appendChild(entry);
-        }
-    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Medication Checklist</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      background: #ffffff;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    label {
+      flex: 1 1 45%;
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input, select {
+      margin-top: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fafafa;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #0077cc;
+      background-color: #ffffff;
+    }
+
+    .medication-entry {
+      background: #f6f6f6;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin-top: 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #666;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .field-row {
+        flex-direction: column;
+      }
+      label {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Enter Medication Info</h1>
-    <form method="POST">
-        <div id="medications">
-            <!-- First medication block -->
-            <div class="medication-entry">
-                <label>Medication Name: <input type="text" name="medication_name" required></label><br>
-                <label>Doses per Day: <input type="number" step="0.1" name="dosage_frequency" required></label><br>
-                <label>Days Between Doses: <input type="number" name="days_between_doses" value="1" required></label><br>
-                <label>Trip Duration (Days): <input type="number" name="duration_days" required></label><br>
-                <label>Current Pill Count: <input type="number" name="current_count" required></label><br>
-                <label>Last Refill Date (YYYY-MM-DD): <input type="text" name="last_refill_date" required></label><br>
-                <label>Days Supply From Last Refill: <input type="number" name="days_supply_from_refill" required></label><br><br>
-            </div>
-        </div>
-        <button type="button" onclick="addMedication()">Add Another Medication</button><br><br>
 
-        <label>Buffer Percentage: <input type="number" step="0.1" name="buffer_percentage" value="5.0"></label><br><br>
-        <button type="submit">Generate PDF</button>
-    </form>
+<div class="container">
+  <h1>Travel Medication Checklist</h1>
+
+  <form method="POST" id="travel-form">
+
+    <div class="section">
+      <h2>Trip Information</h2>
+
+      <div class="field-row">
+        <label>Departure Date
+          <input type="date" name="departure_date" id="departure_date" required>
+        </label>
+
+        <label>Return Date
+          <input type="date" name="return_date" id="return_date" required>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <h2>Medications</h2>
+
+      <div id="medications">
+        <!-- Medications dynamically added here -->
+      </div>
+
+      <button type="button" onclick="addMedication()">➕ Add Medication</button>
+    </div>
+
+    <button type="submit" id="submit-btn" disabled>✅ Calculate Checklist</button>
+
+    <p class="small-note">Note: Departure and return dates are both counted as medication days.</p>
+
+  </form>
+</div>
+
+<script>
+function addMedication() {
+  const container = document.getElementById('medications');
+  const entry = document.createElement('div');
+  entry.className = "medication-entry";
+
+  entry.innerHTML = `
+    <h3>New Medication</h3>
+    <div class="field-row">
+      <label>Medication Name
+        <input type="text" name="medication_name" required>
+      </label>
+
+      <label>Dosage Quantity
+        <input type="number" step="0.1" name="dosage_quantity" min="0" required>
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label>How Often
+        <select name="dosage_interval" required>
+          <option value="">-- Select --</option>
+          <option value="1">Once a day</option>
+          <option value="0.5">Twice a day</option>
+          <option value="2">Every other day</option>
+          <option value="7">Weekly</option>
+          <option value="other">Other (specify below)</option>
+        </select>
+      </label>
+
+      <label>If 'Other', Days Between Doses
+        <input type="number" name="dosage_interval_other" min="1" placeholder="Enter days">
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label>Current Dose Count
+        <input type="number" name="current_count" min="0" required>
+      </label>
+
+      <label>Last Refill Date
+        <input type="date" name="last_refill_date" required>
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label>Doses Received at Last Refill
+        <input type="number" name="doses_at_refill" min="0" required>
+      </label>
+
+      <label>Extra Doses to Bring
+        <input type="number" name="extra_doses" min="0" value="0" required>
+      </label>
+    </div>
+  `;
+
+  container.appendChild(entry);
+
+  // Enable submit when at least one medication exists
+  document.getElementById('submit-btn').disabled = false;
+}
+
+// Validate dates
+document.getElementById('travel-form').addEventListener('submit', function(event) {
+  const dep = document.getElementById('departure_date').value;
+  const ret = document.getElementById('return_date').value;
+
+  if (dep && ret) {
+    const depDate = new Date(dep);
+    const retDate = new Date(ret);
+    if (retDate < depDate) {
+      alert('Return date must be after or equal to departure date.');
+      event.preventDefault();
+    }
+  }
+});
+</script>
+
 </body>
 </html>
